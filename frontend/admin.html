@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Panel administratora</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            color: #222;
+        }
+
+        header {
+            background: #222;
+            color: white;
+            padding: 18px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .back {
+            background: white;
+            color: #222;
+            border: none;
+            padding: 9px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .panel {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        input {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        .add-button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            background: #222;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .rooms {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .room {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 18px;
+        }
+
+        .room h3 {
+            margin-top: 0;
+        }
+
+        .delete {
+            width: 100%;
+            padding: 10px;
+            background: #c62828;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        #message {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 700px) {
+            .form-grid,
+            .rooms {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+</head>
+
+
+<body>
+
+<header>
+
+    <h1>🏫 Panel administratora</h1>
+
+    <button
+        class="back"
+        onclick="window.location.href='/dashboard'">
+        ← Panel główny
+    </button>
+
+</header>
+
+
+<main>
+
+    <div class="panel">
+
+        <h2>➕ Dodaj salę</h2>
+
+        <div class="form-grid">
+
+            <div>
+                <label>Nazwa sali</label>
+                <input id="name" placeholder="np. 301">
+            </div>
+
+            <div>
+                <label>Budynek</label>
+                <input id="building" placeholder="np. Budynek C">
+            </div>
+
+            <div>
+                <label>Piętro</label>
+                <input id="floor" type="number" placeholder="np. 3">
+            </div>
+
+            <div>
+                <label>Pojemność</label>
+                <input id="capacity" type="number" placeholder="np. 40">
+            </div>
+
+            <div>
+                <label>Wyposażenie</label>
+                <input
+                    id="equipment"
+                    placeholder="np. Projektor, komputer">
+            </div>
+
+        </div>
+
+        <button
+            class="add-button"
+            onclick="addRoom()">
+            Dodaj salę
+        </button>
+
+        <div id="message"></div>
+
+    </div>
+
+
+    <div class="panel">
+
+        <h2>🏫 Istniejące sale</h2>
+
+        <div id="rooms" class="rooms"></div>
+
+    </div>
+
+</main>
+
+
+<script>
+
+async function loadRooms() {
+
+    const response = await fetch("/rooms");
+
+    const rooms = await response.json();
+
+    const container =
+        document.getElementById("rooms");
+
+    container.innerHTML = "";
+
+    rooms.forEach(room => {
+
+        const element =
+            document.createElement("div");
+
+        element.className = "room";
+
+        element.innerHTML = `
+
+            <h3>Sala ${room.name}</h3>
+
+            <p>🏢 ${room.building}</p>
+
+            <p>📍 Piętro: ${room.floor}</p>
+
+            <p>👥 ${room.capacity} osób</p>
+
+            <p>🖥️ ${room.equipment}</p>
+
+            <button
+                class="delete"
+                onclick="deleteRoom(${room.id})">
+                🗑️ Usuń salę
+            </button>
+        `;
+
+        container.appendChild(element);
+
+    });
+
+}
+
+
+async function addRoom() {
+
+    const data = {
+
+        name: document.getElementById("name").value,
+
+        building: document.getElementById("building").value,
+
+        floor: Number(
+            document.getElementById("floor").value
+        ),
+
+        capacity: Number(
+            document.getElementById("capacity").value
+        ),
+
+        equipment:
+            document.getElementById("equipment").value
+
+    };
+
+
+    const response = await fetch("/rooms", {
+
+        method: "POST",
+
+        credentials: "include",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify(data)
+
+    });
+
+
+    const result = await response.json();
+
+    const message =
+        document.getElementById("message");
+
+
+    if (response.ok) {
+
+        message.style.color = "green";
+
+        message.textContent =
+            "Sala została dodana! 🎉";
+
+        document.getElementById("name").value = "";
+        document.getElementById("building").value = "";
+        document.getElementById("floor").value = "";
+        document.getElementById("capacity").value = "";
+        document.getElementById("equipment").value = "";
+
+        loadRooms();
+
+    } else {
+
+        message.style.color = "red";
+
+        message.textContent =
+            result.error;
+
+    }
+
+}
+
+
+async function deleteRoom(id) {
+
+    if (!confirm("Czy na pewno chcesz usunąć tę salę?")) {
+        return;
+    }
+
+
+    const response = await fetch(
+        `/rooms/${id}`,
+        {
+            method: "DELETE",
+            credentials: "include"
+        }
+    );
+
+
+    const result = await response.json();
+
+
+    if (response.ok) {
+
+        loadRooms();
+
+    } else {
+
+        alert(result.error);
+
+    }
+
+}
+
+
+loadRooms();
+
+</script>
+
+</body>
+
+</html>

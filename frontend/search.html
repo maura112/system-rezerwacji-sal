@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Znajdź salę</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            color: #222;
+        }
+
+        header {
+            background: #222;
+            color: white;
+            padding: 18px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .back {
+            background: white;
+            color: #222;
+            border: none;
+            padding: 9px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        h2 {
+            font-size: 30px;
+        }
+
+        .filters {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        input {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        .search-button {
+            grid-column: 1 / -1;
+            background: #222;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .rooms {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .room {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .room h3 {
+            margin-top: 0;
+            font-size: 22px;
+        }
+
+        .room p {
+            color: #555;
+        }
+
+        .reserve {
+            width: 100%;
+            background: #222;
+            color: white;
+            border: none;
+            padding: 11px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .empty {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            color: #666;
+        }
+
+        @media (max-width: 700px) {
+            .filters,
+            .rooms {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>🏫 System rezerwacji sal</h1>
+
+    <button class="back"
+            onclick="window.location.href='/dashboard'">
+        ← Panel główny
+    </button>
+</header>
+
+
+<main>
+
+    <h2>🔎 Znajdź salę</h2>
+
+    <div class="filters">
+
+        <div>
+            <label>Budynek</label>
+            <input
+                id="building"
+                type="text"
+                placeholder="np. Budynek A">
+        </div>
+
+        <div>
+            <label>Minimalna pojemność</label>
+            <input
+                id="capacity"
+                type="number"
+                min="1"
+                placeholder="np. 30">
+        </div>
+
+        <div>
+            <label>Wyposażenie</label>
+            <input
+                id="equipment"
+                type="text"
+                placeholder="np. projektor">
+        </div>
+
+        <button
+            class="search-button"
+            onclick="searchRooms()">
+            🔎 Wyszukaj sale
+        </button>
+
+    </div>
+
+
+    <div id="rooms" class="rooms">
+        <div class="empty">
+            Wpisz kryteria i kliknij „Wyszukaj sale”.
+        </div>
+    </div>
+
+</main>
+
+
+<script>
+
+async function searchRooms() {
+
+    const building =
+        document.getElementById("building").value;
+
+    const capacity =
+        document.getElementById("capacity").value;
+
+    const equipment =
+        document.getElementById("equipment").value;
+
+
+    const params = new URLSearchParams();
+
+
+    if (building) {
+        params.append("building", building);
+    }
+
+    if (capacity) {
+        params.append("min_capacity", capacity);
+    }
+
+    if (equipment) {
+        params.append("equipment", equipment);
+    }
+
+
+    const response = await fetch(
+        "/rooms/search?" + params.toString()
+    );
+
+    const rooms = await response.json();
+
+    const container =
+        document.getElementById("rooms");
+
+    container.innerHTML = "";
+
+
+    if (!response.ok) {
+
+        container.innerHTML = `
+            <div class="empty">
+                ${rooms.error}
+            </div>
+        `;
+
+        return;
+    }
+
+
+    if (rooms.length === 0) {
+
+        container.innerHTML = `
+            <div class="empty">
+                Nie znaleziono sal spełniających kryteria.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    rooms.forEach(room => {
+
+        const element =
+            document.createElement("div");
+
+        element.className = "room";
+
+        element.innerHTML = `
+
+            <h3>🏫 Sala ${room.name}</h3>
+
+            <p>🏢 ${room.building}</p>
+
+            <p>📍 Piętro: ${room.floor}</p>
+
+            <p>👥 Pojemność: ${room.capacity} osób</p>
+
+            <p>🖥️ Wyposażenie: ${room.equipment}</p>
+
+            <button
+                class="reserve"
+                onclick="window.location.href='/reservation-page?room_id=${room.id}'">
+                Zarezerwuj salę
+            </button>
+        `;
+
+        container.appendChild(element);
+
+    });
+
+}
+
+</script>
+
+</body>
+
+</html>

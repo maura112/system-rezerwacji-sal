@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Panel użytkownika - System rezerwacji sal</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            color: #222;
+        }
+
+        header {
+            background: #222;
+            color: white;
+            padding: 18px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logout {
+            background: white;
+            color: #222;
+            border: none;
+            padding: 9px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        .welcome {
+            margin-bottom: 35px;
+        }
+
+        .welcome h2 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .welcome p {
+            color: #666;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+        }
+
+        .card-icon {
+            font-size: 35px;
+            margin-bottom: 15px;
+        }
+
+        .card h3 {
+            margin: 0 0 10px;
+        }
+
+        .card p {
+            color: #666;
+            margin: 0;
+        }
+
+        @media (max-width: 700px) {
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                padding: 15px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+
+    <h1>🏫 System rezerwacji sal</h1>
+
+    <div class="user-info">
+        <span id="userName">Ładowanie...</span>
+        <button class="logout" onclick="logout()">Wyloguj</button>
+    </div>
+
+</header>
+
+<main>
+
+    <div class="welcome">
+
+        <h2 id="welcomeMessage">Witaj!</h2>
+
+        <p>
+            Co chcesz dzisiaj zrobić?
+        </p>
+
+    </div>
+
+    <div class="cards">
+
+        <div class="card" onclick="window.location.href='/search-page'">
+            <div class="card-icon">🔎</div>
+            <h3>Znajdź salę</h3>
+            <p>
+                Wyszukaj salę według terminu, budynku,
+                pojemności i wyposażenia.
+            </p>
+        </div>
+
+    <div class="card" onclick="window.location.href='/reservations-page'">
+    <div class="card-icon">📅</div>
+
+    <h3>Moje rezerwacje</h3>
+
+    <p>
+        Zobacz swoje aktualne i wcześniejsze rezerwacje.
+    </p>
+    </div>
+
+        <div class="card" onclick="window.location.href='/rooms-page'">
+    <div class="card-icon">🏫</div>
+    <h3>Dostępne sale</h3>
+    <p>
+        Przeglądaj wszystkie sale dostępne na uczelni.
+    </p>
+</div>
+
+        <div class="card" onclick="window.location.href='/calendar-page'">
+            <div class="card-icon">🗓️</div>
+            <h3>Kalendarz</h3>
+            <p>
+                Sprawdź harmonogram zajętości sal.
+            </p>
+        </div>
+
+        <div class="card" onclick="window.location.href='/occupancy-page'">
+    <div class="card-icon">🔴</div>
+    <h3>Zajętość sal</h3>
+    <p>
+        Sprawdź, które sale są zajęte oraz kiedy są zarezerwowane.
+    </p>
+</div>
+
+        
+        <div class="card" id="adminCard" onclick="window.location.href='/admin-page'">
+    <div class="card-icon">⚙️</div>
+    <h3>Panel administratora</h3>
+    <p>
+        Zarządzaj salami i systemem rezerwacji.
+    </p>
+</div>
+
+    </div>
+
+</main>
+
+<script>
+
+async function loadUser() {
+
+    const response = await fetch("/me", {
+        credentials: "include"
+    });
+
+    if (!response.ok) {
+        window.location.href = "/login-page";
+        return;
+    }
+
+    const user = await response.json();
+
+    document.getElementById("userName").textContent =
+        user.name + " (" + user.role + ")";
+
+    document.getElementById("welcomeMessage").textContent =
+        "Witaj, " + user.name + "! 👋";
+
+
+    // Panel administratora widzi tylko administrator
+    const adminCard = document.getElementById("adminCard");
+
+    if (adminCard && user.role !== "admin") {
+        adminCard.style.display = "none";
+    }
+}
+
+async function logout() {
+    await fetch("/logout", { method: "POST", credentials: "include" });
+    window.location.href = "/";
+}
+
+
+loadUser();
+
+</script>
+
+</body>
+
+</html>

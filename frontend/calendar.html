@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Kalendarz sal</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            color: #222;
+        }
+
+        header {
+            background: #222;
+            color: white;
+            padding: 18px 40px;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .panel {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.08);
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        select,
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #222;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .reservation {
+            margin-top: 20px;
+            padding: 18px;
+            border-radius: 8px;
+            background: #ffe1e1;
+            border-left: 5px solid #c00;
+        }
+
+        .free {
+            margin-top: 20px;
+            padding: 18px;
+            border-radius: 8px;
+            background: #ddf5dd;
+            border-left: 5px solid green;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<header>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1>🏫 System rezerwacji sal</h1>
+
+        <a href="/dashboard" style="
+            padding: 7px 14px;
+            background: white;
+            color: #222;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+        ">
+            ← Panel główny
+        </a>
+    </div>
+</header>
+
+
+<main>
+
+    <h2>📅 Kalendarz sal</h2>
+
+    <div class="panel">
+
+        <label>Wybierz salę</label>
+
+        <select id="room">
+            <option value="">-- wybierz salę --</option>
+        </select>
+
+
+        <label>Data</label>
+
+        <input
+            type="date"
+            id="date">
+
+
+        <button onclick="checkSchedule()">
+            Sprawdź zajętość
+        </button>
+
+
+        <div id="result"></div>
+
+    </div>
+
+</main>
+
+
+<script>
+
+async function loadRooms() {
+
+    const response = await fetch("/rooms");
+
+    const rooms = await response.json();
+
+    const select = document.getElementById("room");
+
+    rooms.forEach(room => {
+
+        const option = document.createElement("option");
+
+        option.value = room.id;
+
+        option.textContent =
+            `Sala ${room.name} — ${room.building}`;
+
+        select.appendChild(option);
+
+    });
+
+}
+
+
+async function checkSchedule() {
+
+    const room =
+        document.getElementById("room").value;
+
+    const date =
+        document.getElementById("date").value;
+
+    const result =
+        document.getElementById("result");
+
+
+    if (!room || !date) {
+
+        result.innerHTML = `
+            <div class="reservation">
+                Wybierz salę i datę.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    const response = await fetch(
+        `/rooms/${room}/schedule?date=${date}`
+    );
+
+    const data = await response.json();
+
+
+    if (!response.ok) {
+
+        result.innerHTML = `
+            <div class="reservation">
+                ${data.error}
+            </div>
+        `;
+
+        return;
+    }
+
+
+    if (data.reservations.length === 0) {
+
+        result.innerHTML = `
+            <div class="free">
+                🟢 Sala ${data.room} jest wolna tego dnia.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    result.innerHTML = `
+        <h3>🔴 Zajęte terminy</h3>
+    `;
+
+
+    data.reservations.forEach(reservation => {
+
+        result.innerHTML += `
+            <div class="reservation">
+                🕐 ${reservation.start_time}
+                – ${reservation.end_time}
+            </div>
+        `;
+
+    });
+
+}
+
+
+loadRooms();
+
+</script>
+
+</body>
+
+</html>

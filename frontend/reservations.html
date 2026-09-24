@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Moje rezerwacje</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            color: #222;
+        }
+
+        header {
+            background: #222;
+            color: white;
+            padding: 18px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .back {
+            background: white;
+            color: #222;
+            border: none;
+            padding: 9px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        h2 {
+            font-size: 30px;
+            margin-bottom: 25px;
+        }
+
+        .reservation {
+            background: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .reservation h3 {
+            margin-top: 0;
+            font-size: 23px;
+        }
+
+        .info {
+            margin: 8px 0;
+            color: #555;
+        }
+
+        .cancel {
+            margin-top: 20px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            background: #b00020;
+            color: white;
+            cursor: pointer;
+        }
+
+        .cancel:hover {
+            background: #8d0019;
+        }
+
+        .empty {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+
+    <h1>🏫 System rezerwacji sal</h1>
+
+    <button
+        class="back"
+        onclick="window.location.href='/dashboard'">
+        ← Panel główny
+    </button>
+
+</header>
+
+
+<main>
+
+    <h2>📅 Moje rezerwacje</h2>
+
+    <div id="reservations">
+        Ładowanie rezerwacji...
+    </div>
+
+</main>
+
+
+<script>
+
+async function loadReservations() {
+
+    const response = await fetch("/reservations");
+
+    const data = await response.json();
+
+    const container = document.getElementById("reservations");
+
+    container.innerHTML = "";
+
+    if (!response.ok) {
+
+        container.innerHTML = `
+            <div class="empty">
+                ${data.error}
+            </div>
+        `;
+
+        return;
+    }
+
+    if (data.length === 0) {
+
+        container.innerHTML = `
+            <div class="empty">
+                Nie masz jeszcze żadnych rezerwacji.
+            </div>
+        `;
+
+        return;
+    }
+
+    data.forEach(reservation => {
+
+        const element = document.createElement("div");
+
+        element.className = "reservation";
+
+        element.innerHTML = `
+
+            <h3>🏫 Sala ${reservation.room}</h3>
+
+            <div class="info">
+                🏢 Budynek: ${reservation.building}
+            </div>
+
+            <div class="info">
+                📅 Data: ${reservation.date}
+            </div>
+
+            <div class="info">
+                🕐 Godziny:
+                ${reservation.start_time} – ${reservation.end_time}
+            </div>
+
+            <button
+                class="cancel"
+                onclick="cancelReservation(${reservation.id})">
+                Anuluj rezerwację
+            </button>
+        `;
+
+        container.appendChild(element);
+
+    });
+}
+
+
+async function cancelReservation(id) {
+
+    const confirmed = confirm(
+        "Czy na pewno chcesz anulować tę rezerwację?"
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    const response = await fetch(
+        `/reservations/${id}`,
+        {
+            method: "DELETE"
+        }
+    );
+
+    const data = await response.json();
+
+    if (response.ok) {
+
+        alert("Rezerwacja została anulowana.");
+
+        loadReservations();
+
+    } else {
+
+        alert(data.error);
+
+    }
+}
+
+
+loadReservations();
+
+</script>
+
+</body>
+
+</html>

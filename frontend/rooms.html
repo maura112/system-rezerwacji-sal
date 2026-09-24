@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dostępne sale - System rezerwacji sal</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            color: #222;
+        }
+
+        header {
+            background: #222;
+            color: white;
+            padding: 18px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .back {
+            background: white;
+            color: #222;
+            border: none;
+            padding: 9px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        h2 {
+            font-size: 30px;
+            margin-bottom: 30px;
+        }
+
+        .rooms {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .room {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .room-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .room h3 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .status {
+            background: #dff5df;
+            color: #267326;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+
+        .info {
+            margin: 10px 0;
+            color: #555;
+        }
+
+        .equipment {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .reserve {
+            width: 100%;
+            margin-top: 20px;
+            padding: 11px;
+            border: none;
+            border-radius: 6px;
+            background: #222;
+            color: white;
+            cursor: pointer;
+        }
+
+        .reserve:hover {
+            background: #444;
+        }
+
+        @media (max-width: 700px) {
+            .rooms {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                padding: 15px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+
+    <h1>🏫 System rezerwacji sal</h1>
+
+    <button class="back" onclick="window.location.href='/dashboard'">
+        ← Panel główny
+    </button>
+
+</header>
+
+<main>
+
+    <h2>🏫 Dostępne sale</h2>
+
+    <div id="rooms" class="rooms">
+        Ładowanie sal...
+    </div>
+
+</main>
+
+<script>
+
+async function loadRooms() {
+
+    const response = await fetch("/rooms");
+
+    const rooms = await response.json();
+
+    const container = document.getElementById("rooms");
+
+    container.innerHTML = "";
+
+    rooms.forEach(room => {
+
+        const roomElement = document.createElement("div");
+
+        roomElement.className = "room";
+
+        roomElement.innerHTML = `
+            <div class="room-header">
+                <h3>Sala ${room.name}</h3>
+                <span class="status">${room.status}</span>
+            </div>
+
+            <div class="info">
+                🏢 ${room.building}
+            </div>
+
+            <div class="info">
+                📍 Piętro: ${room.floor}
+            </div>
+
+            <div class="info">
+                👥 Pojemność: ${room.capacity} osób
+            </div>
+
+            <div class="equipment">
+                🖥️ <strong>Wyposażenie:</strong><br>
+                ${room.equipment}
+            </div>
+
+            <button class="reserve" onclick="reserveRoom(${room.id})">
+                Zarezerwuj salę
+            </button>
+        `;
+
+        container.appendChild(roomElement);
+    });
+}
+
+
+function reserveRoom(roomId) {
+
+    window.location.href =
+        "/reservation-page?room_id=" + roomId;
+
+}
+
+
+loadRooms();
+
+</script>
+
+</body>
+
+</html>

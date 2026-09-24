@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>System rezerwacji sal</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            background: white;
+            padding: 50px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            width: 450px;
+        }
+
+        h1 {
+            margin-bottom: 15px;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        button {
+            padding: 12px 25px;
+            margin: 8px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .login {
+            background: #333;
+            color: white;
+        }
+
+        .register {
+            background: #eee;
+            color: #333;
+        }
+
+        button:hover {
+            opacity: 0.85;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>System rezerwacji sal</h1>
+
+    <p>
+        Zarezerwuj salę szybko i wygodnie.
+    </p>
+
+    <button class="login" onclick="window.location.href='/login-page'">
+        Zaloguj się
+    </button>
+
+    <button class="register" onclick="window.location.href='/register-page'">
+        Zarejestruj się
+    </button>
+</div>
+
+</body>
+
+
+</html>
