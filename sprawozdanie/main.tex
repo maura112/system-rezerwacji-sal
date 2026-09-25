@@ -1,0 +1,216 @@
+\documentclass[times]{san}
+
+\usepackage{graphicx}
+\usepackage{float}
+
+\addbibresource{bibliografia.bib}
+
+\uczelnia{Społeczna Akademia Nauk}
+\przedmiot{Systemy Szkieletowe}
+\autor{Maura Wasielewska}
+\nralbumu{121466}
+\grupa{2}
+\tytul{System rezerwacji sal}
+\prowadzacy{mgr inż. Krystian Gumiński}
+\miasto{Łódź}
+\rok{2026}
+
+\newcommand{\screen}[3]{
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{#1}
+    \caption{#2}
+    \label{#3}
+\end{figure}
+}
+
+
+
+\begin{document}
+
+\maketitlepage
+\spistresci
+
+\section{Wstęp}
+
+W ramach projektu została opracowana aplikacja internetowa służąca do rezerwacji sal. System umożliwia użytkownikom przeglądanie dostępnych pomieszczeń, wyszukiwanie sal oraz dokonywanie rezerwacji w określonym terminie.
+Aplikacja została zaprojektowana jako system składający się z części frontendowej, backendowej oraz bazy danych. W projekcie wykorzystano język Python i framework Flask, natomiast interfejs użytkownika wykonano przy użyciu HTML, CSS i JavaScript. Dane przechowywane są w bazie SQLite z wykorzystaniem SQLAlchemy.
+
+
+\section{Cel projektu}
+
+Celem projektu jest stworzenie prostego systemu umożliwiającego sprawne zarządzanie rezerwacjami sal. System pozwala użytkownikowi na rejestrację, logowanie, przeglądanie i wyszukiwanie sal, sprawdzanie ich dostępności oraz tworzenie i anulowanie rezerwacji. Dodatkowo użytkownik może korzystać z kalendarza oraz sprawdzać zajętość pomieszczeń.
+Drugim istotnym celem było zastosowanie mechanizmu kontroli konfliktów terminów, który uniemożliwia zarezerwowanie tej samej sali przez dwóch użytkowników w nakładających się godzinach.System posiada również konto administratora, który może zarządzać dostępnymi salami.
+
+\section{Przegląd istniejących rozwiązań}
+
+Na rynku dostępnych jest wiele systemów umożliwiających rezerwację pomieszczeń. Są one wykorzystywane między innymi w przedsiębiorstwach, szkołach i uczelniach.
+
+
+
+\subsection{Microsoft Outlook}
+Microsoft Outlook umożliwia planowanie spotkań oraz rezerwowanie dostępnych zasobów, w tym sal konferencyjnych. System jest zintegrowany z kalendarzem i pozwala użytkownikom sprawdzać dostępność wybranych zasobów.
+W porównaniu z projektowanym systemem Outlook oferuje znacznie szerszy zakres funkcji związanych z komunikacją i organizacją pracy.
+
+
+\subsection{Microsoft Bookings}
+Microsoft Bookings jest rozwiązaniem umożliwiającym zarządzanie terminami oraz rezerwacjami. System pozwala na określanie dostępnych terminów i zarządzanie rezerwacjami za pomocą interfejsu internetowego.
+Projektowany system jest rozwiązaniem prostszym i skoncentrowanym wyłącznie na rezerwacji sal.
+
+
+\subsection{Dedykowane systemy rezerwacji sal}
+Na rynku dostępne są również dedykowane systemy przeznaczone do zarządzania przestrzenią i rezerwacją pomieszczeń. Oferują one między innymi kalendarze, zarządzanie użytkownikami oraz sprawdzanie dostępności sal.
+Projektowany system realizuje podstawowe funkcje tego typu aplikacji, jednocześnie zachowując prostą strukturę i niewielką liczbę wymaganych komponentów.
+
+
+
+
+\section{Opis architektury}
+
+System został podzielony na trzy podstawowe warstwy: frontend, backend oraz bazę danych.
+Frontend odpowiada za prezentację informacji oraz komunikację z użytkownikiem. Backend realizuje logikę aplikacji, obsługuje żądania HTTP i kontroluje dostęp do poszczególnych funkcji. Baza danych przechowuje informacje o użytkownikach, salach oraz rezerwacjach.
+
+
+\begin{table}[h]
+\centering
+\caption{Główne komponenty architektury systemu}
+\label{tab:lorem}
+\begin{tabular}{|c|l|c|}
+\hline
+Lp. & Komponent          & Warstwa \\
+\hline
+1   & Frontend        & Prezentacja i obsługa użytkownika   \\
+2   & Backend Flask      & Logika aplikacji i API \\
+3   & SQLAlchemy      & Komunikacja z bazą danych     \\
+3   & SQLite      & Przechowywanie danych    \\
+3   & Docker     & Uruchamianie aplikacji w kontenerze    \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Opis implementacji}
+
+W rozdziale przedstawiono najważniejsze elementy implementacji systemu. Opis został podzielony na frontend, backend, bazę danych oraz elementy związane z uruchamianiem, testowaniem i monitorowaniem aplikacji.
+
+\subsection{Frontend}
+Frontend aplikacji został wykonany przy wykorzystaniu HTML, CSS oraz JavaScript.
+HTML odpowiada za strukturę poszczególnych stron, CSS za wygląd interfejsu, natomiast JavaScript umożliwia komunikację z backendem i dynamiczne wyświetlanie danych.
+Aplikacja posiada między innymi strony logowania i rejestracji, listę sal, wyszukiwarkę, formularz rezerwacji, listę własnych rezerwacji, kalendarz, widok zajętości sal oraz panel administratora.
+
+\screen{01-dashboard.png}
+{Panel główny użytkownika systemu.}
+{fig:dashboard}
+
+\screen{02-dashboard.png}
+{Panel główny użytkownika systemu.}
+{fig:dashboard}
+
+\screen{02-logowanie.png}
+{Formularz logowania użytkownika.}
+{fig:logowanie}
+
+\screen{03-rejestracja.png}
+{Formularz rejestracji nowego użytkownika.}
+{fig:rejestracja}
+
+\screen{04-sale.png}
+{Lista dostępnych sal.}
+{fig:sale}
+
+\screen{05-wyszukiwanie.png}
+{Formularz wyszukiwania i filtrowania sal.}
+{fig:wyszukiwanie}
+
+
+\screen{07-rezerwacja.png}
+{Formularz tworzenia rezerwacji sali.}
+{fig:rezerwacja}
+
+\screen{08-konflikt.png}
+{Odrzucenie rezerwacji w przypadku konfliktu terminów.}
+{fig:konflikt}
+
+\screen{09-moje-rezerwacje.png}
+{Lista rezerwacji użytkownika.}
+{fig:moje-rezerwacje}
+
+\screen{10-kalendarz.png}
+{Widok kalendarza rezerwacji.}
+{fig:kalendarz}
+
+\screen{10-kalendarz-konflikt.png}
+{Widok kalendarza rezerwacji.}
+{fig:kalendarz}
+
+
+
+\subsection{Backend}
+Backend został wykonany w języku Python z wykorzystaniem frameworka Flask.
+Odpowiada on za obsługę użytkowników, sal i rezerwacji oraz komunikację z bazą danych. Backend udostępnia endpointy wykorzystujące między innymi metody HTTP GET, POST i DELETE.
+Podczas tworzenia rezerwacji system sprawdza poprawność danych oraz dostępność wybranego terminu. Jeżeli istnieje konflikt z inną rezerwacją, operacja zostaje odrzucona.
+Backend odpowiada również za kontrolę uprawnień. Funkcje administracyjne są dostępne wyłącznie dla użytkownika posiadającego rolę administratora.
+
+\screen{admin.png}
+{Panel administratora systemu.}
+{fig:admin}
+
+\screen{dodawanie-sali.png}
+{Formularz dodawania sali przez administratora.}
+{fig:dodawanie-sali}
+
+\subsection{Baza Danych}
+Do przechowywania danych wykorzystano bazę SQLite. Komunikacja pomiędzy aplikacją a bazą danych realizowana jest przy pomocy biblioteki SQLAlchemy.
+W bazie przechowywane są informacje dotyczące użytkowników, sal oraz rezerwacji.
+Model użytkownika zawiera między innymi identyfikator, imię, adres e-mail, hasło oraz rolę.
+Model sali przechowuje nazwę sali, budynek, piętro, pojemność, wyposażenie oraz status.
+Model rezerwacji zawiera informacje o użytkowniku, sali, dacie oraz godzinach rozpoczęcia i zakończenia rezerwacji.
+Hasła użytkowników są przechowywane w postaci zahaszowanej.
+
+
+\subsection{Docker}
+Aplikacja została przygotowana do uruchamiania z wykorzystaniem technologii Docker.
+W projekcie znajduje się plik Dockerfile, który określa sposób przygotowania środowiska aplikacji. Wykorzystano obraz Python 3.11 oraz plik requirements.txt zawierający wymagane biblioteki.
+
+Obraz aplikacji został utworzony za pomocą polecenia:
+docker build -t system-rezerwacji-sal .
+
+Zastosowanie Dockera pozwala na uruchomienie aplikacji w przygotowanym i powtarzalnym środowisku.
+
+\screen{docker.png}
+{Budowanie obrazu aplikacji za pomocą technologii Docker.}
+{fig:docker}
+
+\subsection{Testy}
+Do testowania aplikacji wykorzystano bibliotekę unittest.
+Przygotowane testy sprawdzają między innymi dostępność strony głównej, strony logowania oraz endpointu odpowiedzialnego za listę sal.
+Testy uruchamiane są za pomocą polecenia:
+python -m unittest discover -s tests -v
+Wszystkie trzy przygotowane testy zakończyły się poprawnie:
+Ran 3 tests ... OK
+
+\screen{testy.png}
+{Wynik wykonania testów jednostkowych aplikacji.}
+{fig:testy}
+
+\subsection{Monitoring}
+W celu sprawdzania stanu aplikacji przygotowano endpoint:
+GET /health
+Endpoint sprawdza działanie aplikacji oraz możliwość wykonania operacji na bazie danych.
+W przypadku prawidłowego działania zwracany jest status ok oraz informacja, że baza danych działa poprawnie. Mechanizm umożliwia szybkie sprawdzenie podstawowego stanu systemu.
+
+\screen{health.png}
+{Wynik działania endpointu monitorującego stan aplikacji.}
+{fig:health}
+
+\section{Podsumowanie i wnioski}
+W ramach projektu utworzono internetowy system rezerwacji sal umożliwiający użytkownikom wyszukiwanie pomieszczeń, sprawdzanie ich dostępności oraz tworzenie i anulowanie rezerwacji.
+System posiada mechanizm zapobiegania konfliktom terminów oraz podział użytkowników na zwykłych użytkowników i administratorów. Administrator ma dodatkowo możliwość zarządzania dostępnymi salami.
+Do wykonania projektu wykorzystano Python, Flask, HTML, CSS, JavaScript, SQLite, SQLAlchemy oraz Docker. Kod projektu jest zarządzany przy użyciu Git i przechowywany na platformie GitHub.
+Projekt pozwolił na praktyczne wykorzystanie wiedzy związanej z tworzeniem aplikacji internetowych, projektowaniem baz danych, tworzeniem API, testowaniem oraz uruchamianiem aplikacji w środowisku kontenerowym
+
+\spistabel
+\spisrysunkow
+\nocite{*}
+\printbibliography
+
+\end{document}
