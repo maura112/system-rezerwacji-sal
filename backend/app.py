@@ -76,6 +76,20 @@ def admin_page():
 def home():
     return send_from_directory("../frontend", "index.html")
 
+@app.route("/health")
+def health():
+    try:
+        db.session.execute(db.text("SELECT 1"))
+        return {
+            "status": "ok",
+            "database": "ok"
+        }, 200
+    except Exception as e:
+        return {
+            "status": "error",
+            "database": "error"
+        }, 500
+
 
 with app.app_context():
     db.create_all()
